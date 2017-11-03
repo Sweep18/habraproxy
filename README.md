@@ -4,3 +4,4 @@
 
 1) Установить зависимости из requirements.txt
 2) python habraproxy.py
+3) В браузере открыть http://127.0.0.1:5000/
