@@ -22,7 +22,10 @@ def start(url=''):
     response = requests.get(full_url, headers=headers)
     soup = bs4.BeautifulSoup(response.text, "html.parser")
 
-    for link in soup.find_all(['link', 'script', 'a']):
+    for link in soup.find_all(['link', 'script', 'a', 'style']):
+        if link.name == 'style':
+            link.string.replace_with("@import url('https://fonts.googleapis.com/css?family=Fira+Sans:500&subset=cyrillic');")
+
         if link.parent.name == 'link':
             link['href'] = link['href'].replace('/images/favicons/', 'https://habrahabr.ru/images/favicons/')
 
@@ -35,15 +38,14 @@ def start(url=''):
 
     for text in soup.find_all(text=True):
         if text.parent.name in DEL_TAG:
-            font = re.compile(r'(/fonts/0/)').sub(r'https://habrahabr.ru/fonts/0/', text)
-            text.string.replace_with(font)
             continue
 
         if type(text) == bs4.element.Doctype or type(text) == bs4.element.Comment:
             continue
 
-        text_re = re.compile(r'(\b\w{6}\b)').sub(r'\1™', text)
-        text.string.replace_with(text_re)
+        text_tm = re.compile(r'(\b\w{6}\b)').sub(r'\1™', text)
+        text_plus = re.compile('&plus;').sub('+', text_tm)
+        text.string.replace_with(text_plus)
 
     return render_template_string(str(soup))
 
